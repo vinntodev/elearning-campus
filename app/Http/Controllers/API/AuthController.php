@@ -14,37 +14,45 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:mahasiswa,dosen'
+            'role' => 'required|in:mahasiswa,dosen',
         ]);
+
+        if (User::where('email', $validated['email'])->exists()) {
+            return response()->json([
+                'message' => 'Email already registered.',
+            ], 409);
+        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role']
+            'role' => $validated['role'],
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Registration successful',
-            'user' => $user,
-            'token' => $token
-        ], 201);
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ], 200);
     }
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required|string|min:8',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -54,17 +62,19 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token
-        ]);
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ], 200);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()?->currentAccessToken()?->delete();
 
         return response()->json([
-            'message' => 'Logout successful'
-        ]);
+            'message' => 'Logout successful',
+        ], 200);
     }
 }
