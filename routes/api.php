@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssignmentController;
@@ -42,4 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Discussions
     Route::post('/discussions', [DiscussionController::class, 'store']);
     Route::post('/discussions/{id}/replies', [DiscussionController::class, 'reply']);
+
+    // Reports
+    Route::get('/reports/courses', [ReportController::class, 'courseStatistics']);
+    Route::get('/reports/assignments', [ReportController::class, 'assignmentStatistics']);
+    Route::get('/reports/students/{id}', [ReportController::class, 'studentStatistics']);
 });
