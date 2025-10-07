@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\SubmissionController;
 
 Route::get('/user', function (Request $request) {
@@ -37,4 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Submissions
     Route::post('/submissions', [SubmissionController::class, 'store'])->middleware('role:mahasiswa');
     Route::post('/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('role:dosen');
+
+    // Discussions
+    Route::post('/discussions', [DiscussionController::class, 'store']);
+    Route::post('/discussions/{id}/replies', [DiscussionController::class, 'reply']);
 });
