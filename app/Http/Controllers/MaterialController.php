@@ -11,10 +11,11 @@ class MaterialController extends Controller
 {
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,zip|max:10240'
+            'file_path' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,zip|max:10240'
         ]);
 
         $course = Course::findOrFail($validated['course_id']);
@@ -23,7 +24,7 @@ class MaterialController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $file = $request->file('file');
+        $file = $request->file('file_path');
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('materials', $filename, 'public');
 
@@ -36,7 +37,7 @@ class MaterialController extends Controller
         return response()->json([
             'message' => 'Material uploaded successfully',
             'material' => $material
-        ], 201);
+        ]);
     }
 
     public function download($id)
