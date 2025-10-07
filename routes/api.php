@@ -16,9 +16,15 @@ Route::post('/login', [AuthController::class, 'login']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Course routes
     Route::get('/courses', [CourseController::class, 'index']);
     Route::post('/courses', [CourseController::class, 'store'])->middleware('role:dosen');
     Route::put('/courses/{id}', [CourseController::class, 'update'])->middleware('role:dosen');
     Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->middleware('role:dosen');
     Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:mahasiswa');
+
+    // Material routes
+    Route::post('/materials', [MaterialController::class, 'store'])->middleware('role:dosen');
+    Route::get('/materials/{id}/download', [MaterialController::class, 'download']);
 });
