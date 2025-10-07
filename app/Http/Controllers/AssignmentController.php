@@ -28,7 +28,7 @@ class AssignmentController extends Controller
         return response()->json([
             'message' => 'Assignment created successfully',
             'assignment' => $assignment
-        ], 201);
+        ]);
     }
     
 }
