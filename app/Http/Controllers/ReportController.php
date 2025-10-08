@@ -56,7 +56,7 @@ class ReportController extends Controller
 
     public function studentStatistics($id)
     {
-        $student = User::where('role', 'mahasiswa')->findOrFail($id);
+        $student = User::where('role', 'student')->findOrFail($id);
 
         $submissions = Submission::where('student_id', $id)
             ->with('assignment:id,title,course_id')

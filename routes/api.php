@@ -24,21 +24,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Course routes
     Route::get('/courses', [CourseController::class, 'index']);
-    Route::post('/courses', [CourseController::class, 'store'])->middleware('role:dosen');
-    Route::put('/courses/{id}', [CourseController::class, 'update'])->middleware('role:dosen');
-    Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->middleware('role:dosen');
-    Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:mahasiswa');
+    Route::post('/courses', [CourseController::class, 'store'])->middleware('role:lecturer');
+    Route::put('/courses/{id}', [CourseController::class, 'update'])->middleware('role:lecturer');
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->middleware('role:lecturer');
+    Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:student');
 
     // Material routes
-    Route::post('/materials', [MaterialController::class, 'store'])->middleware('role:dosen');
+    Route::post('/materials', [MaterialController::class, 'store'])->middleware('role:lecturer');
     Route::get('/materials/{id}/download', [MaterialController::class, 'download']);
 
     // Assignments
-    Route::post('/assignments', [AssignmentController::class, 'store'])->middleware('role:dosen');
+    Route::post('/assignments', [AssignmentController::class, 'store'])->middleware('role:lecturer');
 
     // Submissions
-    Route::post('/submissions', [SubmissionController::class, 'store'])->middleware('role:mahasiswa');
-    Route::post('/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('role:dosen');
+    Route::post('/submissions', [SubmissionController::class, 'store'])->middleware('role:student');
+    Route::post('/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('role:lecturer');
 
     // Discussions
     Route::post('/discussions', [DiscussionController::class, 'store']);

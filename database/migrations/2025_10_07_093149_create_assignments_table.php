@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description');
             $table->dateTime('deadline');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

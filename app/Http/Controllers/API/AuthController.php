@@ -16,7 +16,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:mahasiswa,dosen',
+            'role' => 'required|in:student,lecturer',
         ]);
 
         if (User::where('email', $validated['email'])->exists()) {
@@ -71,10 +71,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()?->currentAccessToken()?->delete();
+        $request->user()?->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Logout successful',
-        ], 200);
+        ]);
     }
 }
