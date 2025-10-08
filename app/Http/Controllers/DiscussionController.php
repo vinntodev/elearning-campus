@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Reply;
 use App\Models\Discussion;
+use App\Events\ReplyCreated;
 use Illuminate\Http\Request;
+use App\Events\DiscussionCreated;
 
 class DiscussionController extends Controller
 {
@@ -20,6 +22,8 @@ class DiscussionController extends Controller
             'user_id' => $request->user()->id,
             'content' => $validated['content']
         ]);
+
+        broadcast(new DiscussionCreated($discussion));
 
         return response()->json([
             'message' => 'Discussion created successfully',
@@ -40,6 +44,8 @@ class DiscussionController extends Controller
             'user_id' => $request->user()->id,
             'content' => $validated['content']
         ]);
+
+        broadcast(new ReplyCreated($reply));
 
         return response()->json([
             'message' => 'Reply added successfully',
