@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Assignment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewAssignmentNotification;
 
 class AssignmentController extends Controller
 {
@@ -25,10 +27,13 @@ class AssignmentController extends Controller
 
         $assignment = Assignment::create($validated);
 
+        $students = $course->students;
+
+        Notification::send($students, new NewAssignmentNotification($assignment));
+
         return response()->json([
-            'message' => 'Assignment created successfully',
+            'message' => 'Assignment created successfully and notifications sent',
             'assignment' => $assignment
         ]);
     }
-    
 }

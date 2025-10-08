@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Assignment;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use App\Notifications\NewGradeNotification;
 
 class SubmissionController extends Controller
 {
@@ -62,8 +63,10 @@ class SubmissionController extends Controller
 
         $submission->update(['score' => $validated['score']]);
 
+        $submission->student->notify(new NewGradeNotification($submission));
+
         return response()->json([
-            'message' => 'Submission graded successfully',
+            'message' => 'Submission graded successfully and notification sent',
             'submission' => $submission
         ]);
     }
