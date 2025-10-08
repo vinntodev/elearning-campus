@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Real-Time Forum Test</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+            }
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+            .header h1 {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+            .content {
+                padding: 30px;
+            }
+            .box {
+                background: #f9f9f9;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                border: 2px solid #e0e0e0;
+            }
+            .box h3 {
+                color: #667eea;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #667eea;
+                padding-bottom: 10px;
+            }
+            input,
+            button {
+                padding: 12px;
+                margin: 5px 0;
+                border: 2px solid #e0e0e0;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            input {
+                width: 150px;
+            }
+            button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-weight: 600;
+                padding: 12px 30px;
+            }
+            button:hover {
+                transform: translateY(-2px);
+            }
+            .status {
+                padding: 12px;
+                border-radius: 5px;
+                margin: 15px 0;
+                font-weight: 600;
+                text-align: center;
+            }
+            .connected {
+                background: #d4edda;
+                color: #155724;
+            }
+            .disconnected {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            #messages {
+                max-height: 400px;
+                overflow-y: auto;
+                background: white;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            .message {
+                background: #f0f0f0;
+                padding: 15px;
+                margin: 10px 0;
+                border-left: 4px solid #667eea;
+                border-radius: 5px;
+            }
+            .message strong {
+                color: #667eea;
+            }
+            .message .meta {
+                font-size: 12px;
+                color: #666;
+                margin-top: 5px;
+            }
+            .badge {
+                display: inline-block;
+                padding: 3px 8px;
+                border-radius: 3px;
+                font-size: 11px;
+                font-weight: 600;
+                margin-left: 5px;
+            }
+            .badge-dosen {
+                background: #ffd700;
+                color: #333;
+            }
+            .badge-mahasiswa {
+                background: #4caf50;
+                color: white;
+            }
+            pre {
+                background: #2d2d2d;
+                color: #f8f8f2;
+                padding: 15px;
+                border-radius: 5px;
+                overflow-x: auto;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🚀 Real-Time Forum Test</h1>
+                <p>Laravel Reverb WebSocket</p>
+            </div>
+
+            <div class="content">
+                <div class="box">
+                    <h3>⚙️ Setup Connection</h3>
+                    <label
+                        >Course ID:
+                        <input type="number" id="courseId" value="1"
+                    /></label>
+                    <label
+                        >Discussion ID:
+                        <input type="number" id="discussionId" value="1"
+                    /></label>
+                    <br /><br />
+                    <button onclick="connect()">🔌 Connect WebSocket</button>
+                    <div id="status" class="status disconnected">
+                        ⚠️ Not Connected
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>💬 Real-Time Messages</h3>
+                    <div id="messages">
+                        <p
+                            style="
+                                text-align: center;
+                                color: #999;
+                                padding: 20px;
+                            "
+                        >
+                            Waiting for messages...
+                        </p>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>📝 How to Test</h3>
+                    <ol style="line-height: 1.8; padding-left: 20px">
+                        <li>
+                            Pastikan Reverb server sudah jalan:
+                            <code>php artisan reverb:start</code>
+                        </li>
+                        <li>Klik tombol "Connect WebSocket"</li>
+                        <li>Gunakan Postman untuk POST discussion/reply</li>
+                        <li>Lihat pesan muncul real-time di sini! 🎉</li>
+                    </ol>
+
+                    <h4 style="margin-top: 20px; color: #667eea">
+                        API Endpoints:
+                    </h4>
+                    <pre>
+POST http://localhost:8000/api/discussions
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "course_id": 1,
+  "content": "Hello everyone!"
+}
+
+---
+
+POST http://localhost:8000/api/discussions/1/replies
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "content": "This is my reply!"
+}</pre
+                    >
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let ws;
+
+            function connect() {
+                const courseId = document.getElementById("courseId").value;
+                const discussionId =
+                    document.getElementById("discussionId").value;
+
+                ws = new WebSocket(
+                    "ws://localhost:8080/app/local-key?protocol=7&client=js&version=8.0.0"
+                );
+
+                ws.onopen = function () {
+                    console.log("Connected to Reverb");
+                    document.getElementById("status").className =
+                        "status connected";
+                    document.getElementById("status").innerHTML =
+                        "✅ Connected to WebSocket";
+
+                    subscribeToChannel(`course.${courseId}`);
+
+                    subscribeToChannel(`discussion.${discussionId}`);
+                };
+
+                ws.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log("Received:", data);
+
+                    if (data.event === "App\\Events\\DiscussionCreated") {
+                        addMessage("💬 New Discussion", JSON.parse(data.data));
+                    } else if (data.event === "App\\Events\\ReplyCreated") {
+                        addMessage("↩️ New Reply", JSON.parse(data.data));
+                    }
+                };
+
+                ws.onerror = function (error) {
+                    console.error("WebSocket error:", error);
+                    document.getElementById("status").className =
+                        "status disconnected";
+                    document.getElementById("status").innerHTML =
+                        "❌ Connection Error";
+                };
+
+                ws.onclose = function () {
+                    console.log("Disconnected from Reverb");
+                    document.getElementById("status").className =
+                        "status disconnected";
+                    document.getElementById("status").innerHTML =
+                        "⚠️ Disconnected";
+                };
+            }
+
+            function subscribeToChannel(channel) {
+                const subscribeMsg = {
+                    event: "pusher:subscribe",
+                    data: { channel: channel },
+                };
+                ws.send(JSON.stringify(subscribeMsg));
+                console.log("Subscribed to:", channel);
+            }
+
+            function addMessage(title, data) {
+                const messagesDiv = document.getElementById("messages");
+
+                if (messagesDiv.querySelector("p")) {
+                    messagesDiv.innerHTML = "";
+                }
+
+                const badgeClass =
+                    data.user.role === "dosen"
+                        ? "badge-dosen"
+                        : "badge-mahasiswa";
+
+                const msg = document.createElement("div");
+                msg.className = "message";
+                msg.innerHTML = `
+                <strong>${title}</strong>
+                <span class="badge ${badgeClass}">${data.user.role.toUpperCase()}</span>
+                <div style="margin: 10px 0;">${data.content}</div>
+                <div class="meta">
+                    👤 ${data.user.name} • 
+                    🕒 ${new Date(data.created_at).toLocaleString()}
+                </div>
+            `;
+
+                messagesDiv.insertBefore(msg, messagesDiv.firstChild);
+
+                playSound();
+            }
+
+            function playSound() {
+                try {
+                    const ctx = new (window.AudioContext ||
+                        window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.frequency.value = 800;
+                    gain.gain.value = 0.1;
+
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.1);
+                } catch (e) {}
+            }
+        </script>
+    </body>
+</html>

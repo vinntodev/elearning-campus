@@ -10,6 +10,22 @@ use App\Events\DiscussionCreated;
 
 class DiscussionController extends Controller
 {
+    public function index(Request $request)
+    {
+        $courseId = $request->query('course_id');
+
+        $discussions = Discussion::with(['user:id,name,role', 'replies.user:id,name,role'])
+            ->when($courseId, function ($query) use ($courseId) {
+                return $query->where('course_id', $courseId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'discussions' => $discussions
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('role:lecturer');
 
     // Discussions
+    Route::get('/discussions', [DiscussionController::class, 'index']);
     Route::post('/discussions', [DiscussionController::class, 'store']);
     Route::post('/discussions/{id}/replies', [DiscussionController::class, 'reply']);
 
